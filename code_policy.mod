@@ -1,0 +1,464 @@
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * --- ---- --- --- --- --- ---- --- --- ------ ---- --- --- --- --- ---
+ * This .mod file uses Dynare's toolkit to reproduce the results of
+ * the model with Welfare Effects
+ * --- ---- --- --- --- --- ---- --- --- ------ ---- --- --- --- --- ---
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * --- ---- --- --- --- --- ---- --- --- ------ ---- --- --- --- --- ---
+ */
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+// 1. Declaration of endogenous variables
+var g_hat c_hat cr_hat cnr_hat q_hat u_hat	rk_hat I_hat k_hat w_hat N_hat y_hat  
+    R_hat tao_c tao_k tao_w kg_hat Ig_hat trans b_hat emp_hat 
+    tao_c_inc tao_k_inc tao_w_inc b_hat_y
+    pid_hat pix_hat piim_hat deltaE_hat mc_hat mcx_hat mcmi_hat
+    pistar_hat ystar_hat Rstar_hat phitilde_hat 
+    pic_hat r_hat 
+    e_a  e_i e_r e_pi e_pix e_pim e_n e_w e_tr e_ig e_tc e_tk 
+    e_tw e_g  e_dt 
+    x_hat im_hat nx_hat
+    //Utility Recursive_Welfare Recursive_natural_welfare_equivalent Welfare_gap// % Welfare block
+;
+// ---------------------------------------------------------------------------------------------------
+
+// 2. Declaration of exogenous variables
+varexo  
+at wt nt tct tkt pit twt it gt igt trt rt pixt pimt e_pistar e_ystar e_Rstar phitildet dt;// yoilt; %
+
+// ---------------------------------------------------------------------------------------------------
+
+// 3. Declaration of parameters
+parameters  rho_p fc omega_w chi_w e_nu chi_h sigma_c  piT chi_x chi_im
+            aa beta  alfa delta omega_d gammak kappa rho_R r_pi r_y sigma_n rho_a alfa_g delta_g phi_g phi_ig
+            rho_i rho_w std_at std_it std_pit std_nt rho_n std_wt std_phitilde
+            yz_bar R_bar c_bar I_bar g_bar Ig_bar tr_bar wN_bar rky_bar b_bar tao_cbar tao_wbar tao_kbar
+            std_tc std_tw std_tk std_g std_tr std_ig omega_im rho_r rho_px rho_pm rk_bar
+            psi_g psi_ig phi_tr psi_tr phi_tc psi_tc phi_tk psi_tk phi_tw psi_tw omega_h omega_x
+            ela_lw ela_lc ela_lk ela_g ela_ig ela_tr etac etai etax chi_e
+            rho_tc rho_tk rho_tw rho_g rho_ig rho_tr //rho_oil omega_oil oil_bar 
+            phimc phimi pcd_bar pim_bar phitilde phitildes rho_phitilde b_target 
+            rho_pistar rho_ystar rho_Rstar piTstar cm_bar im_bar x_bar // phix
+            lambda_utility 
+            ;
+            
+// 4. Parameter estimations
+
+etac         =	   1.1896   ;   // elasticity of substition domestic and  foreign consumption goods
+etai	     =	   1.1892	;   // elasticity of substition imported consumption and investments goods 
+etax	     =	   1.197	;   // elasticity of substition foreign goods and investments
+omega_d      =     0.4841   ;   // share of domestic goods (iqual to omega_c)
+omega_w      =     0.5423   ;   // share wages
+omega_im     =     0.5148   ;   // share of imports (consump. and investment goods)
+omega_x      =     0.4989   ;   // share of expots goods
+chi_h        =     0.4803   ;   // price indexation
+chi_w        =     0.5012   ;   // wage indexation
+chi_e        =     0.4997   ;   // emp. indexation
+chi_x        =     0.5019   ;   // export indexation
+chi_im       =     0.4921   ;   // export indexation
+phimc        =	   1.1948   ; 
+phimi        =	   1.2003   ;
+phitilde     =	   0.075    ; // Risk premium
+phitildes    =	   0.6717   ; // 0.6 ;   
+rho_phitilde  =    0.6969   ; 
+fc           =     1.3018   ; 
+
+// Foreign Economy block
+rho_pistar   =     0.6736 ;
+rho_ystar    =     0.9500 ;
+rho_Rstar    =     0.6998 ;
+
+// Persistence parameters
+rho_a        =     0.7085  ;
+rho_n        =     0.8001  ;
+rho_i        =     0.4447  ;
+rho_w        =     0.6759  ;
+rho_p        =     0.519  ;
+
+rho_r        =     0.6   ;
+rho_px       =     0.6987  ;
+rho_pm       =     0.6831  ;
+
+// Fiscal policy rules - block
+
+// Persistence of Fiscal rules
+rho_tc = 0.5297; % 0.485 ; //  
+rho_tk = 0.7393; % 0.7564 ; //
+rho_tw = 0.7463; % 0.7572 ; //
+rho_g  = 0.6742; % 0.6366 ; //
+rho_ig = 0.7634 ; % 0.7611 ; //
+rho_tr = 0.7699; % 0.770 ; //
+
+// Responces to GDP
+psi_tc =  0.5276  ;
+psi_tk =  0.5076  ;
+psi_tw =  0.4942  ;
+psi_g  =  0.4350  ;
+psi_ig =  0.5075  ;
+psi_tr =  0.5050  ;
+
+
+// Responces to debt
+ela_lc       =     0.2115  ;
+ela_lk       =     0.2072  ;
+ela_lw       =     0.2249  ;
+ela_g        =     0.1029  ;
+ela_ig       =     0.2041  ;
+ela_tr       =     0.2126  ;
+
+// Persistence of Shocks
+phi_g        =     0.4488  ;
+phi_ig       =     0.7762  ;
+phi_tr       =     0.7555  ;
+phi_tk       =     0.7597  ;
+phi_tw       =     0.7502  ;
+phi_tc       =     0.6081  ;  
+
+// --------------------------------------------------
+//Calibrated steady state values -29
+
+// General parameters
+beta      = 0.9922 ;   // discount factor (6% real annual interest rate - COP TES: 1.06^(-1/4))
+delta     = 0.025  ;   // depreciation rate of private capital
+delta_g   = 0.015  ;   // depreciation rate of public capital
+e_nu      = 1.05   ;    // wage markup (nu-1/nu)
+alfa      = 0.3    ;    // Share of capital in production
+alfa_g    = 0.01   ;    // Elasticity of output to public capital
+gammak    = 6.4    ;    // investment adjustment cost parameter
+omega_h   = 0.3    ;    // share non-Ricardian households.
+aa        = 0.049  ;    // capital utilisation parameter // 0.049
+kappa     = 0.7016 ;    // habit formation
+sigma_n   = 1      ;    // Labor supply elasticity (is common in literature).
+sigma_c   = 1.2    ;    // coefficient of relative risk aversion
+piT       = 1.0074 ;    // domestic Inflation target at 3%
+piTstar   = 1.005  ;    // external Inflation target at 2%
+
+// Monetary policy parameters - Based on literature
+rho_R        =     0.7444  ;  // (fixed following to Christiano et al. (2010)
+r_pi         =     1.5685  ;
+r_y          =     0.1485  ;
+
+// Fiscal policy block
+// Taxes Based on Rincón-Castro and Delgado-Rojas 2018
+tao_cbar  = 0.107;  // steady state labor tax rate % 10.7 %0.07; 
+tao_kbar  = 0.186;  // steady state capital tax rate % 18.6 %0.1 
+tao_wbar  = 0.154;  // steady state labor tax rate % 15.4 % 0.07
+
+// Long-run relations 
+g_bar     = 0.16;    // steady state government consumptio
+Ig_bar    = 0.02;     // steady state government investment
+b_bar     = 1.56 ;    //  steady state gov. debt (mean 39% annual)
+b_target  = 1.8 ;    // steady state government debt target - to Y ratio  (MFMP 23: 45% ancla LP) (2)
+yz_bar    = 1.0089;   // Delta GDP: 3.6%
+lambda_utility = 0;   // fraction of natural consumption required to make agent indifferent (used in optimizer below)
+
+
+// //Steady state values
+R_bar    = 1/beta; %1/((1-tao_kbar)*beta); 
+rky_bar  = alfa;
+wN_bar   = 1-alfa;
+rk_bar   = (1/(1-tao_kbar))*(1/beta-(1-delta));
+I_bar    = delta*rky_bar/rk_bar;
+c_bar    = 1-g_bar-I_bar-Ig_bar;
+%y_bar    = yz_bar^(-alfa)*rk_bar^alfa*wN_bar^(1-alfa);
+pcd_bar  = ((1-omega_d) + omega_d *(phimc)^(1-etac))^(1/(1-etac));
+pim_bar  = ( omega_im + (1-omega_im)*(1/phimi)^(1-etai))^(1/(1-etac));
+cm_bar   = omega_d*pcd_bar^(etac)*c_bar;
+im_bar   = omega_im*pim_bar^(etai)*I_bar;
+x_bar    = cm_bar+im_bar;
+tr_bar   = tao_cbar*c_bar+tao_wbar*wN_bar+tao_kbar*rky_bar-g_bar-Ig_bar-R_bar*b_bar+b_bar;
+
+// Socks - standard deviations
+std_at       =     0.0118  ;
+std_nt       =     0.0111  ;
+std_pit      =     0.0101  ;
+std_tc       =     0.0232  ;
+std_tk       =     0.0105  ;
+std_tw       =     0.0123  ;
+std_it       =     0.0735  ;
+std_tr       =     0.0130  ;
+std_ig       =     0.0113  ;
+std_wt       =     0.012   ;
+std_g        =     0.0248  ;
+std_rt       =     0.01    ;
+std_phitilde =     0.0125  ;
+std_pixt     =     0.0113  ;
+std_pimt     =     0.0269  ;
+std_dt       =     0.01     ;
+//std_oilt    =     0.1312  ;
+
+//---------------------------------------------------------------------------------------------------------------
+
+// Model equations
+model(linear);
+
+//ENDOGENOUS VARIABLES
+
+// 1. consumption of non-Ricardian households
+(1+tao_cbar)*c_bar*(cnr_hat+(tao_cbar/(1+tao_cbar))*tao_c)=wN_bar*((1-tao_wbar)*(w_hat+N_hat)-tao_wbar*tao_w)+tr_bar*trans;
+
+// 2. consumption of Ricardian households
+cr_hat = ((1/(1+kappa))*cr_hat(+1)) + ((kappa/(1+kappa))*cr_hat(-1)) -((1-kappa)/((1+kappa)*sigma_c))*(R_hat)+((1-kappa)/((1+kappa)*sigma_c))*pic_hat(+1)+((1-kappa)/((1+kappa)*sigma_c))*(e_n-e_n(+1))-((1-kappa)/((1+kappa)*sigma_c))*(tao_cbar/(1+tao_cbar))*(tao_c-tao_c(+1));
+
+// First order conditions of Ricardian households
+// 3. Capital 
+q_hat=-R_hat+pid_hat(+1)+((1-delta)/(1-delta+(1-tao_kbar)*rk_bar))*q_hat(+1)+((1-tao_kbar)*rk_bar/(1-delta+(1-tao_kbar)*rk_bar))*(rk_hat(+1)-(tao_kbar/(1-tao_kbar))*tao_k(+1));
+
+// 4. Investment
+I_hat=((1/(gammak*(1+beta)))*(q_hat)+(1/(1+beta))*I_hat(-1)+(beta/(1+beta))*I_hat(+1)-(1/((1+beta)))*(e_i-beta*e_i(+1)));
+
+// 5. Capital utilisation
+u_hat=(1/aa)*(rk_hat-(tao_kbar/(1-tao_kbar))*tao_k);
+
+// 6-8. Wages, hours and employment
+w_hat=(beta/(1+beta))*w_hat(+1)+(1/(1+beta))*w_hat(-1)+(beta/(1+beta))*pid_hat(+1)-((1+beta*chi_w)/(1+beta))*pid_hat+(chi_w/(1+beta))*pid_hat(-1)-((((1-omega_w)*(1-beta*omega_w))/((1+((1+e_nu)/(e_nu))*sigma_n)*omega_w))*(1/(1+beta)))*(w_hat-sigma_n*N_hat-(sigma_c/(1-kappa))*(cr_hat-kappa*cr_hat(-1))-(tao_wbar/(1-tao_wbar))*tao_w-(tao_cbar/(1+tao_cbar))*tao_c+e_w);
+emp_hat = beta/(1+beta)*emp_hat(+1)+(1/(1+beta))*emp_hat(-1)+((1-chi_e)*(1-beta*chi_e))/((1+beta)*chi_e)*(N_hat-emp_hat); 
+
+// 9. Private capital accumulation 
+k_hat=((1-delta)*k_hat(-1)+delta*(I_hat));
+
+// Public capital accumulation 
+kg_hat=(1-delta_g)*kg_hat(-1) + delta_g*Ig_hat;
+
+// 11. Production
+y_hat=fc*(e_a+alfa*k_hat(-1)+alfa*u_hat+(1-alfa)*N_hat+alfa_g*kg_hat(-1));
+
+// 12-13. combination of First order conditions of Firms
+//Rf_hat = (nu_bar*R_bar/(nu_bar*R_bar+1-nu_bar))*R_hat(-1);
+rk_hat+u_hat+k_hat(-1)=w_hat+N_hat;   // + Rf_hat
+
+// 14. Exchange rate’s modified UIP condition
+(1-phitildes)*deltaE_hat(+1) - phitildes*deltaE_hat - (R_hat - Rstar_hat) - phitilde*u_hat + phitilde_hat = 0;
+
+// 15. New-Keynesian Philips curve for domestic producers
+pid_hat = piT+(beta/(1+beta*chi_h))*(pid_hat(+1)-piT)+(chi_h/(1+beta*chi_h))*(pid_hat(-1)-piT)
+            + ((((1-omega_d)*(1-beta*omega_d))/(omega_d))*(1/(1+beta*chi_h)))*( mc_hat ) +e_pi;
+
+// 16. New-Keynesian Phillips curve for exporters
+pix_hat = piTstar + (beta/(1+chi_x*beta))*(pix_hat(+1)-piTstar) +  (chi_x/(1+chi_x*beta))*(pix_hat(-1)-piTstar) 
+            + (((1-omega_x)*(1-beta*omega_x))/(omega_x*(1+chi_x*beta)))*( mcx_hat) + e_pix ;
+
+// 17. New-Keynesian Phillips curve for importers
+piim_hat = piT+(beta/(1+chi_im*beta))*(piim_hat(+1)-piT) + (chi_im/(1+chi_im*beta))*(piim_hat(-1)-piT) 
+            + (((1-omega_im)*(1-beta*omega_im))/(omega_im*(1+chi_im*beta)))*( mcmi_hat) + e_pim; 
+
+// 18. Resource constraint and net assset position 
+y_hat=(c_bar)*c_hat+(I_bar)*I_hat+(1-tao_kbar)*(rky_bar)*u_hat+g_bar*g_hat+Ig_bar*Ig_hat; 
+
+// 19. total consumption
+c_hat=(1-omega_h)*cr_hat+omega_h*cnr_hat; 
+
+// 20-21. monetary policy rule:
+R_hat = rho_R*R_hat(-1) + (1-rho_R)*(r_pi*(piT+(pid_hat(-1)-piT)) + r_y*(y_hat(-1)))+ rt; //ytot_hat
+
+// Fisher Equation - real interest rate
+r_hat= R_hat-pic_hat(+1); 
+
+// 22. Marginal cost (domestic)
+mc_hat= (1-alfa)*w_hat+alfa*rk_hat-alfa_g*kg_hat(-1) - e_a ;  
+
+// 23. Inflation (domestic) and relative prices
+pic_hat = ((omega_d)*(1/ phimc)^(1-etac)) * pid_hat + ((1-omega_d)*(1/ phimi)^(1-etai)) * piim_hat; //
+
+// 24-25. Imports and Exports
+mcx_hat = mcx_hat(-1) + pid_hat - pix_hat - deltaE_hat; //
+mcmi_hat = mcmi_hat(-1) + pistar_hat - pid_hat + deltaE_hat;  //-mcx_hat 
+
+// Imports-Exports
+x_hat =  -omega_d*(( (1-omega_d)*(1/phimc)^(1-etac) + omega_d )^(1/(1-etac)))*pid_hat - pistar_hat;
+im_hat = (c_bar/(c_bar+I_bar))*(c_hat-c_hat(-1))-(c_bar/(c_bar+I_bar))*(etac*(1-omega_d)) + (I_bar/(c_bar+I_bar))*(I_hat-I_hat(-1))-(I_bar/(c_bar+I_bar))*(etai*(1-omega_im));
+
+// Net trade balance
+nx_hat = y_hat - omega_x*deltaE_hat - c_hat - g_hat; % 
+
+// 24-27. Government budget constraint and taxes
+g_hat*g_bar+Ig_bar*Ig_hat+tr_bar*trans+b_bar*R_bar*(b_hat(-1)+R_hat(-1)-pid_hat) =b_bar*b_hat+tao_cbar*c_bar*(c_hat+tao_c)+tao_wbar*wN_bar*(w_hat+N_hat+tao_w)+tao_kbar*rky_bar*(rk_hat+u_hat+k_hat(-1)+tao_k) ; // omega_oil*yoil_hat*oil_bar
+tao_c_inc = (c_hat+tao_c);                          // Consumption tax  
+tao_k_inc = (rk_hat+u_hat+k_hat(-1)+tao_k);         // Capital tax
+tao_w_inc = (w_hat+N_hat+tao_w);                    // Labor income tax
+
+// Debt-to-output Ratio
+b_hat_y = b_bar^(-1)*b_hat - y_hat; 
+
+// 30-33. Fiscal policy rules:
+
+g_hat  = rho_g*(g_hat(-1)) - (1-rho_g)*(psi_g*y_hat+ela_g*(b_hat(-1))) - e_g;             // Change to + model base
+Ig_hat = rho_ig*(Ig_hat(-1)) - (1-rho_ig)*(psi_ig*y_hat+ela_ig*(b_hat(-1))) - e_ig;       // Change to + 
+trans  = rho_tr*(trans(-1)) - (1-rho_tr)*(psi_tr*y_hat+ela_tr*(b_hat(-1))) - e_tr;        // Change to + 
+
+tao_c = rho_tc*(tao_c(-1)) + (1-rho_tc)*(psi_tc*(y_hat)+ela_lc*(b_hat(-1))) + e_tc;       // 
+tao_k = rho_tk*(tao_k(-1)) + (1-rho_tk)*(psi_tk*(y_hat)+ela_lk*(b_hat(-1))) + e_tk;       // 
+tao_w = rho_tw*(tao_w(-1)) + (1-rho_tw)*(psi_tw*(y_hat)+ela_lw*(b_hat(-1))) + e_tw;       //
+
+// -----------------------------------------------------------------------
+
+//38-40 Foreign variables - VAR model
+pistar_hat  = rho_pistar * pistar_hat(-1) + e_pistar;
+ystar_hat   = rho_ystar  * ystar_hat(-1)  + e_ystar ;
+Rstar_hat   = rho_Rstar  * Rstar_hat(-1)  + e_Rstar ;
+
+
+// 41-55. EXOGENOUS VARIABLES
+e_tc = phi_tc*e_tc(-1)+tct;
+e_tk = phi_tk*e_tk(-1)+tkt;
+e_tw = phi_tw*e_tw(-1)+twt;
+e_tr = phi_tr*e_tr(-1)+trt;
+e_ig = phi_ig*e_ig(-1)+igt;
+e_g  = phi_g*e_g(-1)+gt;
+e_a  = rho_a*e_a(-1)+at;
+e_i  = rho_i*e_i(-1)+it;
+e_w  = rho_w*e_w(-1)+wt;
+e_pi = rho_p*e_pi(-1)+pit;
+e_pix= rho_px*e_pix(-1)+pixt;
+e_pim= rho_pm*e_pim(-1)+pimt;
+e_n  = rho_n*e_n(-1)+nt;
+e_r  = rt;
+e_dt = dt;
+phitilde_hat = rho_phitilde*phitilde_hat(-1)+phitildet; //Risk premium
+end;
+
+// -------------------------------------------------------------------
+// -------------------------------------------------------------------
+
+%model_diagnostics;
+%steady;
+%check;
+
+%resid(1);
+%Options_.dynatol.f=3e-4;
+%options.solve_tolf= 5e-3;
+%steady(solve_algo = 2, maxit = 1000000);
+%check;
+
+shocks;
+var tct; stderr std_tc;
+var tkt; stderr std_tk;
+var twt; stderr std_tw;
+var gt; stderr std_g;
+var igt; stderr std_ig;
+var trt; stderr std_tr;
+var it; stderr std_it;
+var pit; stderr std_pit;
+var at; stderr std_at;
+var wt; stderr std_wt;
+var nt; stderr std_nt;
+var rt; stderr std_rt;
+var pixt; stderr std_pixt;
+var pimt; stderr std_pimt;
+var e_pistar; stderr std_pixt;
+var e_ystar; stderr std_pimt;
+var e_Rstar; stderr std_rt;
+var phitildet; stderr std_phitilde;
+var dt; stderr std_dt;
+end;
+
+// ---------------------------------------------------------------------
+
+options_.order=1;
+options_.aim_solver=1;
+options_.prior_trunc=0;
+
+initval;
+%tao_c= tao_cbar; 
+%tao_k= tao_kbar; 
+%tao_w= tao_wbar; 
+b_hat= 2.2; 
+%y_hat= 1;
+end;
+
+
+// Schock simul..
+%stoch_simul (order=2);
+
+//--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
+
+%stoch_simul (order=1,nofunctions,irf=40, nocorr, noprint, nograph);
+
+//define planner objective
+%options_.ramsey.maxit = 10000;
+// Exp. Taylor - second order
+%planner_objective beta*((cr_hat + (sigma_c/2)*(cr_hat)^2) - ((1-tao_wbar)/(1+tao_cbar)) * (N_hat+(sigma_n/2)*(N_hat)^2));
+
+//set up Ramsey optimal policy problem with fiscal rules
+%ramsey_model(planner_discount=beta,instruments=(tao_c, tao_w, tao_k, g_hat, Ig_hat, trans)); %, tao_c, tao_w, tao_k, g_hat, Ig_hat, trans
+
+//conduct stochastic simulations of the Ramsey problem
+
+%stoch_simul (order=2,nofunctions,irf=40, periods=500, nocorr, noprint, nograph);
+
+//simulation
+%steady(solve_algo = 2, maxit = 1000000);
+// Simul. with perfect foresight
+%perfect_foresight_setup(periods=500);
+%perfect_foresight_solver;
+
+%evaluate_planner_objective;
+%options_.debug=1
+
+// ---------------------------------------
+
+// FOR OPTIMAL SIMPLE RULES 
+
+stoch_simul (order=2,nofunctions,irf=40, periods=500, nocorr, noprint, nograph);
+steady;
+
+// Exp. Taylor - second order
+planner_objective (1-beta)*(100)*(((c_hat-c_bar) + (sigma_c/2)*(c_hat-c_bar)^2) - ((1-tao_wbar)/(1+tao_cbar)) * ((N_hat-wN_bar)+(sigma_n/2)*(N_hat-wN_bar)^2));
+
+//set up Ramsey optimal policy problem with fiscal rules
+ramsey_model(planner_discount=beta,instruments=(tao_c, tao_w, tao_k, g_hat, Ig_hat, trans)); %, tao_c, tao_w, tao_k, g_hat, Ig_hat, trans
+
+//set weights for OSR
+optim_weights;
+b_hat 2.2;
+end;
+
+// "osr" parameters to be optimized
+osr_params psi_tc ela_lc psi_tk ela_lk psi_tw ela_lw psi_g ela_g psi_ig ela_ig ela_tr psi_tr; // ; 
+
+//starting value for OSR parameter
+psi_tc = 0.5;
+ela_lc = 0.5; 
+psi_tk = 0.5;
+ela_lk = 0.5; 
+psi_tw = 0.5;
+ela_lw = 0.5;
+psi_g = 0;
+ela_g = 0;
+psi_ig = 0;
+ela_ig = 0;
+ela_tr = 0;
+psi_tr = 0;
+
+//define bounds for OSR during optimization
+osr_params_bounds;
+psi_tc, 0, 1;
+ela_lc, 0, 1; 
+psi_tk, 0, 1;
+ela_lk, 0, 1;
+psi_tw, 0, 1;
+ela_lw, 0, 1;
+psi_g, 0, 1;
+ela_g, 0, 0.5;
+psi_ig, 0, 0.5;
+ela_ig, 0, 0.5;
+ela_tr, 0, 0.5;
+psi_tr, 0, 0.5;
+end;
+
+//compute OSR and provide output
+osr(opt_algo=9) b_hat y_hat pic_hat c_hat I_hat; 
+
+
+// -- End
+// --------------------------------------------------------------------------------
+
